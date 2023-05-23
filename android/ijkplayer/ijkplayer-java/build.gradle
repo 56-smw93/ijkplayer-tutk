@@ -12,6 +12,7 @@ android {
         abortOnError false
     }
     defaultConfig {
+//        applicationId "tv.danmaku.ijk.media.player"
         minSdkVersion 21
         targetSdkVersion rootProject.ext.targetSdkVersion
     }
