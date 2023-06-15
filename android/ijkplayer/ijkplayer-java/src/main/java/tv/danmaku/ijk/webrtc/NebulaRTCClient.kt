@@ -554,6 +554,10 @@ class NebulaRTCClient : AppRTCClient {
         return json
     }
 
+    override fun sendCustomCommand(command: String): String? {
+        return clientSend(command)
+    }
+
     private fun clientSend(reqJson: String): String? {
         val response = arrayOfNulls<String>(1)
         if (DEBUG) {
@@ -563,6 +567,7 @@ class NebulaRTCClient : AppRTCClient {
         if (DEBUG) {
             Log.d(TAG, "send ret = $ret")
         }
+        Log.d(TAG,"send resp ${response[0]}")
         return response[0]
     }
 

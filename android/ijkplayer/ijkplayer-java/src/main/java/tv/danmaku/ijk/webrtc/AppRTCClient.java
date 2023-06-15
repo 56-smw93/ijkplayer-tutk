@@ -75,6 +75,12 @@ public interface AppRTCClient {
   void disconnectFromRoom();
 
   /**
+   * Sending any custom command
+   * @return return from the command
+   */
+  String sendCustomCommand(String command);
+
+  /**
    * Receive ice gathering state
    */
   void sendIceGatheringState(PeerConnection.IceGatheringState newState);

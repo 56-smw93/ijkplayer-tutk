@@ -44,9 +44,14 @@ import com.tutk.IOTC.St_AVClientStartOutConfig;
 import com.tutk.IOTC.TUTKGlobalAPIs;
 import com.tutk.IOTC.TUTKRegion;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import tv.danmaku.ijk.media.example.R;
 import tv.danmaku.ijk.media.example.webrtc.NebulaImp;
 import tv.danmaku.ijk.media.player.widget.media.IjkTextureView;
+import tv.danmaku.ijk.webrtc.ConnectToNeb;
 import tv.danmaku.ijk.webrtc.NebulaParameter;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.misc.IjkFrame;
@@ -66,8 +71,8 @@ public class VideoActivity extends AppCompatActivity {
     private static final String AVAPI4_REALM = "your_realm";
     private static final String AVAPI4_FILENAME = "20200518013511";
     private static final String WEBRTC_UDID = "2B28RITAZWZFYCAZVJL0PGP2PBQUL6KLI7DSRZSY";
-    private static final String WEBRTC_CREDENTIAL = "nO0BRuQUSRGBy55M133l/0wCekqErXKTGEvvECqQmDctmagMhiW6adcI8ap3miVcYL5RZXlEqCawh9avQi9JQQMH4dkPGEf6+u8iA9mwD1g+KksCSh1Plg7TNm80N9pSeCcAO2FDJQi6Mcw/S6mnJjBEpEVOUcno87Do8ZijY2Fi8r5Je/Z+q4weTerHOpY5Mw6A+gvjnjHDePuRKwXDlg==";
-    private static final String WEBRTC_DMTOKEN = "Oz7WSSkb1fDcFcS9DcZuCvqrDdZZWUCULJEznVkm9xo";
+    private static final String WEBRTC_CREDENTIAL = "h6yhA7thQ/yx0aVZDv/A8YE1IE71gdTS403CstIGZ1v0UPL0t8SEfbUmgzv//BPGvMAWGDlgLo7pSWtEJKnQDsk7VPrRGJbnjYx6/oLqE3nlNLdvxiXjMq8GNrMRgjD0NrR4CT+zAT+rqIZyTxByRVjlV6ZlI3wnYQK7B9lnsbQIuOh7WnieEev+FC39Q8ywnKjwGh3+qwarKAEY9zm1Pw==";
+    private static final String WEBRTC_DMTOKEN = "Oz7WSSkb1fDcFcS9DcZuCvqrDdZZWUCULJEznVkm9xo=";
     private static final String WEBRTC_REALM = "56ai";
     private static final Integer WEBRTC_CHANNEL = null;
     private static final Integer WEBRTC_EVENT_START_TIME = null;
@@ -99,6 +104,8 @@ public class VideoActivity extends AppCompatActivity {
     private int mAvIndex;
     private long[] mClientCtx = new long[1];
     private AudioRecord mAudioRecorder = null;
+
+    ConnectToNeb nebConnect;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -244,6 +251,8 @@ public class VideoActivity extends AppCompatActivity {
 //        }
         if (mDemoWebRTC) {
             playLiveStream();
+            nebConnect = new ConnectToNeb(this);
+            sendAnyCommand();
             /*
             NebulaAPIs.Nebula_Initialize();
 
@@ -356,6 +365,40 @@ public class VideoActivity extends AppCompatActivity {
         }
     }
 
+    private void sendAnyCommand() {
+        NebulaAPIs.Nebula_Initialize();
+        String args = "{\"args\":{\"startTime\":1684313000,\"order\":\"all\",\"listNumber\":0},\"func\":\"queryEventListByNumber\"}";
+        long[] ctx = new long[1];
+        int clientN = NebulaAPIs.Nebula_Client_New_From_String(WEBRTC_UDID, WEBRTC_CREDENTIAL, ctx);
+        Log.i(TAG, "smw: value from Nebula_Client_New_From_String:" + clientN);
+        NebulaAPIs.Nebula_Client_Connect(ctx[0], new NebulaAPIs.NebulaClientConnectStateFn() {
+            @Override
+            public void connect_state_handler(long client_ctx, int state) {
+            }
+        }, 30000, null);
+        String resp =  nebConnect.sendCommand(new NebulaImp(ctx[0]), args);
+        writeToFile(resp);
+        Log.i(TAG, "smw: response frm cstm cmnd: "+resp);
+    }
+
+
+    private void writeToFile(String text) {
+        try{
+            File path = this.getExternalFilesDir(null);
+            File fname = new File(path, "neb_resp.txt");
+            Log.i(TAG, "smw: writing file in: "+fname);
+
+            FileOutputStream stream = new FileOutputStream(fname);
+            stream.write(text.getBytes());
+            stream.close();
+            Log.i(TAG,"smw: response written to file");
+        } catch (IOException ioExc) {
+            Log.e(TAG, "smw: IO exception in writing data: " + ioExc.getLocalizedMessage());
+        } catch (Exception exception) {
+            Log.e(TAG, "smw: IO exception in writing data: " + exception.getLocalizedMessage());
+        }
+    }
+
     private void playLiveStream() {
 
         Runnable rn = new Runnable() {
@@ -370,7 +413,8 @@ public class VideoActivity extends AppCompatActivity {
                     public void connect_state_handler(long client_ctx, int state) {
                     }
                 }, 30000, null);
-                NebulaParameter param = new NebulaParameter(WEBRTC_DMTOKEN, WEBRTC_REALM, WEBRTC_CHANNEL, IjkVideoView.STREAM_TYPE_AUDIO_AND_VIDEO, 1684741900, "x_shadman::0", true);
+                NebulaParameter param = new NebulaParameter(WEBRTC_DMTOKEN, WEBRTC_REALM, WEBRTC_CHANNEL, IjkVideoView.STREAM_TYPE_AUDIO_AND_VIDEO, 1684990800,
+                        "x1_shadman::0", true);
                 long id = mVideoView.startWebRTC(getApplicationContext(), getDisplayMetrics(), new NebulaImp(ctx[0]), param);
                 if (id != IjkVideoView.INVALID_WEBRTC_ID) {
                     Log.i(TAG, "smw: id is : "+id);
@@ -388,12 +432,9 @@ public class VideoActivity extends AppCompatActivity {
                 mVideoView.setVideoPath(mVideoPath);
                 mVideoView.start();
                 mVideoView.setSpeed(1.0f);
-
             }
         };
-
         new Thread(rn).start();
-
     }
 
 
