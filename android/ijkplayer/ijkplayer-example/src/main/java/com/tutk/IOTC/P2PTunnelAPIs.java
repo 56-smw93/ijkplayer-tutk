@@ -104,7 +104,7 @@ public class P2PTunnelAPIs {
 	public static final int	TUNNEL_ER_OPERATION_IS_INVALID		=-30026;
 
 	/** P2PTunnel handshake failed. */
-	public static final int	TUNNEL_ER_HANDSHAKE_FAILED		=-30027;
+	public static final int	TUNNEL_ER_HANDSHAKE_FAILED			=-30027;
     
 	/** Remote P2PTunnel not support DTLS. */
 	public static final int	TUNNEL_ER_REMOTE_NOT_SUPPORT_DTLS	=-30028;
@@ -113,9 +113,21 @@ public class P2PTunnelAPIs {
 	public static final int	TUNNEL_ER_LOCAL_NOT_SUPPORT_DTLS	=-30029;
 
     /** API timeout*/
-	public static final int	TUNNEL_ER_TIMEOUT					= -30030;
+	public static final int	TUNNEL_ER_TIMEOUT					=-30030;
 
-	public static final int	TUNNEL_ER_UNDEFINED          		=-31000;
+	/** The remote site already closes the IOTC session.*/
+	public static final int	TUNNEL_ER_SESSION_CLOSE_BY_REMOTE	=-30031;
+
+	/** This IOTC session is disconnected */
+	public static final int	TUNNEL_ER_REMOTE_TIMEOUT_DISCONNECT	=-30032;
+
+	/** API or remote reject*/
+	public static final int	TUNNEL_ER_REJECT					=-30033;
+
+	/** retry API*/
+	public static final int	TUNNEL_ER_RETRY						=-30034;
+
+	public static final int	TUNNEL_ER_UNDEFINED					=-31000;
 
 	 		
 	@Deprecated public native static int P2PTunnel_Version();
@@ -146,6 +158,7 @@ public class P2PTunnelAPIs {
 	public native int  P2PTunnel_Set_Connection_Option(st_ConnectOption S_ConnectOption);
 
 	public native int  P2PTunnelSetConnectionOption(P2PTunnelConnectionType type);
+	public native int  P2PTunnelServer_Register_Port_Verify(tunnelServerPortVerifyCB tunnelServerPortVerifyFn, Object userArg);
 	public native int  P2PTunnelServer_Listen(int SID, int CHID);
 	@Deprecated public native int  P2PTunnelAgent_Attach_Connect(int SID, int CHID, byte[] authData, int authDataLength, int[] errFromDeviceCB);
 
@@ -182,6 +195,10 @@ public class P2PTunnelAPIs {
 	
 	public interface tunnelServerAuthCB {
 		void onTunnelServerAuth(String account, String[] password, Object userArg);
+	}
+
+	public interface tunnelServerPortVerifyCB {
+		int onTunnelServerPortVerify(int nServicePort, Object userArg);
 	}
 	
 	public interface tunnelAgentAuthCB {

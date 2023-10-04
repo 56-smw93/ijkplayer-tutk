@@ -135,6 +135,7 @@ public class RDTAPIs {
 
     public native static int  RDT_Server_Create(int nIOTCSessionID, int nIOTCChannelID, rdtServerAuthCb pfxServerAuthFn, Object userArg, int nTimeoutMs);
     public native static int  RDT_Client_Create(int nIOTCSessionID, int nIOTCChannelID, rdtClientAuthCb pfxClientAuthFn, Object userArg, int nTimeoutMs);
+    public native static int  RDT_Set_Log_Attr(St_LogAttr logAttr);
 
     public interface rdtServerAuthCb {
         void onRdtServerAuth(String account, String[] password, Object userArg);

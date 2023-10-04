@@ -22,8 +22,8 @@ public class St_AVClientStartInConfig
     public String account_or_identity= null;
     public String password_or_token= null;
     public int resend;
-    public int security_mode; //0:simple 1:DTLS
-    public int auth_type; //0:account & password  1:identity & token
+    public int security_mode; //0:simple 1:DTLS 2:auto
+    public int auth_type; //0:account & password  1:identity & token  2:nebula
     public int sync_recv_data;
     public String dtls_cipher_suites = null;
 }

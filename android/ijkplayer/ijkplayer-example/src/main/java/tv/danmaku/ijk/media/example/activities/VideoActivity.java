@@ -39,10 +39,12 @@ import android.widget.TextView;
 import com.tutk.IOTC.AVAPIs;
 import com.tutk.IOTC.IOTCAPIs;
 import com.tutk.IOTC.NebulaAPIs;
+import com.tutk.IOTC.P2PTunnelAPIs;
 import com.tutk.IOTC.St_AVClientStartInConfig;
 import com.tutk.IOTC.St_AVClientStartOutConfig;
 import com.tutk.IOTC.TUTKGlobalAPIs;
 import com.tutk.IOTC.TUTKRegion;
+import com.tutk.IOTC.sP2PTunnelSessionInfo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -70,9 +72,9 @@ public class VideoActivity extends AppCompatActivity {
     private static final String AVAPI4_DMTOKEN = "your_dmtoken";
     private static final String AVAPI4_REALM = "your_realm";
     private static final String AVAPI4_FILENAME = "20200518013511";
-    private static final String WEBRTC_UDID = "2B28RITAZWZFYCAZVJL0PGP2PBQUL6KLI7DSRZSY";
-    private static final String WEBRTC_CREDENTIAL = "h6yhA7thQ/yx0aVZDv/A8YE1IE71gdTS403CstIGZ1v0UPL0t8SEfbUmgzv//BPGvMAWGDlgLo7pSWtEJKnQDsk7VPrRGJbnjYx6/oLqE3nlNLdvxiXjMq8GNrMRgjD0NrR4CT+zAT+rqIZyTxByRVjlV6ZlI3wnYQK7B9lnsbQIuOh7WnieEev+FC39Q8ywnKjwGh3+qwarKAEY9zm1Pw==";
-    private static final String WEBRTC_DMTOKEN = "Oz7WSSkb1fDcFcS9DcZuCvqrDdZZWUCULJEznVkm9xo=";
+    private static final String WEBRTC_UDID = "2B28RITAZWZFYCAZVJL0PGP2PBQUL6KLI7DSRZSYYJKDTRM34XEIEGCEQ5DVGIXQRVMIIA66CQYKTFZJZ3XQHFMHEN7RVEH6KKIVUMSBXM";
+    private static final String WEBRTC_CREDENTIAL = "2UKESP+/czYvAqNprkCIAlEqtctKyfipvjPvsQ2mEFjqgsOJONKm4/WapmBHpT3Lh2zwAMOy9ZRG1XY2Vx1Ze6zBhOElj1Pb+LGH4Oy5BTI5kIlOuYc0ITbg86m1Fek9AHQuXFoeEEftYl4+rcyYaBUsiw11f5b+Rsz4Ay9m+k9YjHOAu02C8Cl/uC1bgNFYNr0wdXQEM1gZUHdwTnufew==";
+    private static final String WEBRTC_DMTOKEN = "dFNIVTBXSERFNllFN0JNWXY4OUdRR01DMzZDVE16Vk06T3NuaFpjM2g0MUpGNVRnRENpb3dtN1NscFVQbzRoc2M6NTZhaQ==";
     private static final String WEBRTC_REALM = "56ai";
     private static final Integer WEBRTC_CHANNEL = null;
     private static final Integer WEBRTC_EVENT_START_TIME = null;
@@ -250,9 +252,11 @@ public class VideoActivity extends AppCompatActivity {
 //            mVideoPath = AVAPI_LIVE_URL;
 //        }
         if (mDemoWebRTC) {
-            playLiveStream();
-            nebConnect = new ConnectToNeb(this);
-            sendAnyCommand();
+//            playLiveStream();
+            playLiveStreamThroughP2P();
+
+//            nebConnect = new ConnectToNeb(this);
+//            sendAnyCommand();
             /*
             NebulaAPIs.Nebula_Initialize();
 
@@ -381,7 +385,6 @@ public class VideoActivity extends AppCompatActivity {
         Log.i(TAG, "smw: response frm cstm cmnd: "+resp);
     }
 
-
     private void writeToFile(String text) {
         try{
             File path = this.getExternalFilesDir(null);
@@ -399,6 +402,47 @@ public class VideoActivity extends AppCompatActivity {
         }
     }
 
+    class P2pTunnelCB implements P2PTunnelAPIs.IP2PTunnelCallback {
+        @Override
+        public void onTunnelStatusChanged(int nErrCode, int nSID) {
+        }
+
+        @Override
+        public int onTunnelSessionInfoChanged(sP2PTunnelSessionInfo object) {
+            return 0;
+        }
+    }
+
+    private void playLiveStreamThroughP2P() {
+        NebulaAPIs.Nebula_Initialize();
+        long[] ctx = new long[1];
+        String livestream_id = "";
+        if (WEBRTC_UDID.length() > 40) {
+            livestream_id = WEBRTC_UDID.substring(0, 40);
+        } else {
+            livestream_id = WEBRTC_UDID;
+        }
+        NebulaAPIs.Nebula_Client_New_From_String(livestream_id, WEBRTC_CREDENTIAL, ctx);
+        NebulaAPIs.Nebula_Client_Connect(ctx[0], new NebulaAPIs.NebulaClientConnectStateFn() {
+            @Override
+            public void connect_state_handler(long client_ctx, int state) {
+            }
+        }, 30000, null);
+
+        P2pTunnelCB mTunnelCB = new P2pTunnelCB();
+        P2PTunnelAPIs mTunnelAPIs = new P2PTunnelAPIs(mTunnelCB);
+        mTunnelAPIs.P2PTunnelAgentInitialize(4);
+        int mSid = mTunnelAPIs.P2PTunnelAgent_Connect_By_Nebula(ctx[0], WEBRTC_DMTOKEN,
+                WEBRTC_REALM, 10000);
+        Log.i("smw","sId: "+mSid);
+        mTunnelAPIs.P2PTunnel_SetBufSize(mSid,512000);
+        int mTunnelIndex = mTunnelAPIs.P2PTunnelAgent_PortMapping(mSid, 10000, 554);
+        Log.i("smw","tunnelIndex: "+mTunnelIndex);
+        mVideoPath = "rtsp://127.0.0.1:" + 10000 + "/main_stream";
+        Log.i("smw","mVideoPath: "+mVideoPath);
+        mVideoView.start();
+    }
+
     private void playLiveStream() {
 
         Runnable rn = new Runnable() {
@@ -407,7 +451,13 @@ public class VideoActivity extends AppCompatActivity {
                 NebulaAPIs.Nebula_Initialize();
 
                 long[] ctx = new long[1];
-                NebulaAPIs.Nebula_Client_New_From_String(WEBRTC_UDID, WEBRTC_CREDENTIAL, ctx);
+                String livestream_id = "";
+                if (WEBRTC_UDID.length() > 40) {
+                    livestream_id = WEBRTC_UDID.substring(0, 40);
+                } else {
+                    livestream_id = WEBRTC_UDID;
+                }
+                NebulaAPIs.Nebula_Client_New_From_String(livestream_id, WEBRTC_CREDENTIAL, ctx);
                 NebulaAPIs.Nebula_Client_Connect(ctx[0], new NebulaAPIs.NebulaClientConnectStateFn() {
                     @Override
                     public void connect_state_handler(long client_ctx, int state) {

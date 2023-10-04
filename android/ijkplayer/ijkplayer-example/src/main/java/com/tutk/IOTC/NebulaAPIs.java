@@ -77,9 +77,9 @@ public class NebulaAPIs {
 
     public interface NebulaClientConnectStateFn {
         class NebulaClientConnectState {
-            public static final int STATE_CONNECTING = 1;
-            public static final int STATE_CONNECTED = 2;
-            public static final int STATE_DISCONNECTED = 4;
+            public static final int NEBULA_CLILOGIN_ST_CONNECTED = 1;
+            public static final int NEBULA_CLILOGIN_ST_DISCONNECTED = 2;
+            public static final int NEBULA_CLILOGIN_ST_RETRYLOGIN = 4;
         }
         void connect_state_handler(long client_ctx, int state);
     }

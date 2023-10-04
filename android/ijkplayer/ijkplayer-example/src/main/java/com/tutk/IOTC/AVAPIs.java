@@ -23,6 +23,14 @@ import java.util.ArrayList;
 
 public class AVAPIs {
 
+	public static final int	AV_SECURITY_SIMPLE            =0;
+	public static final int	AV_SECURITY_DTLS              =1;
+	public static final int	AV_SECURITY_AUTO              =2;
+
+	public static final int	AV_AUTH_PASSWORD              =0;
+	public static final int	AV_AUTH_TOKEN                 =1;
+	public static final int	AV_AUTH_NEBULA                =2;
+
 	public static final int TIME_DELAY_DELTA				=1;		//ms
 	public static final int TIME_DELAY_MIN					=4;		//ms
 	public static final int TIME_DELAY_MAX					=500;	//ms
@@ -236,6 +244,11 @@ public class AVAPIs {
     public native static int avServNotifyCloudRecordStream(String attr_json, int timeout_msec, AVAbort abort);
 	public native static int avSendJSONCtrlRequest(int av_index, String json_request, String[] json_response, int timeout_sec);
 	public native static int avEnableVSaaSByNebula(long device_ctx, String VSaaSconfig, avVSaaSConfigChangedFn notifyConfigChanged, avVSaaSUpdateContractInfoFn updateContractInfo);
+
+	//For IJKPlayer
+	public native static int avGetAPIs(long [] avapi);
+	public native static int avGetAPI3s(long [] avapi);
+
 	/*##################Device Side CallBack##########################*/
 	public interface avPasswordAuthFn {
 		int password_auth(String account,String[] password);
