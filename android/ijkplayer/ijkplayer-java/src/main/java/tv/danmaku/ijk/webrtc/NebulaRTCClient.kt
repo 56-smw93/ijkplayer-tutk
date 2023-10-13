@@ -1,6 +1,8 @@
 package tv.danmaku.ijk.media.example.webrtc
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
@@ -566,6 +568,13 @@ class NebulaRTCClient : AppRTCClient {
         val ret = mNebulaAPIs?.Send_Command(reqJson, response, TIMEOUT_IN_MS)
         if (DEBUG) {
             Log.d(TAG, "send ret = $ret")
+        }
+        if ((ret ?: 0) < 0) {
+            Intent().also { intent ->
+                intent.setAction("secure56.tutk.listener")
+                intent.putExtra("data", "{\"statusCode\"=$ret,\"statusMsg\"=\"Error\"}")
+                mContext?.sendBroadcast(intent)
+            }
         }
         Log.d(TAG,"send resp ${response[0]}")
         return response[0]

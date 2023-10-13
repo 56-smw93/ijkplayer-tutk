@@ -70,8 +70,8 @@ public class VideoActivity extends AppCompatActivity {
     private static final String AVAPI4_DMTOKEN = "your_dmtoken";
     private static final String AVAPI4_REALM = "your_realm";
     private static final String AVAPI4_FILENAME = "20200518013511";
-    private static final String WEBRTC_UDID = "2B28RITAZWZFYCAZVJL0PGP2PBQUL6KLI7DSRZSY";
-    private static final String WEBRTC_CREDENTIAL = "h6yhA7thQ/yx0aVZDv/A8YE1IE71gdTS403CstIGZ1v0UPL0t8SEfbUmgzv//BPGvMAWGDlgLo7pSWtEJKnQDsk7VPrRGJbnjYx6/oLqE3nlNLdvxiXjMq8GNrMRgjD0NrR4CT+zAT+rqIZyTxByRVjlV6ZlI3wnYQK7B9lnsbQIuOh7WnieEev+FC39Q8ywnKjwGh3+qwarKAEY9zm1Pw==";
+    private static final String WEBRTC_UDID = "2B28NITTGS6RG3W6IXQTJL3YU5ZQECJMKEJ7YKQM7TLH3BENTVLTZYDNUG4UMZMH6MRARRB7QWXLNQ6ADDZTBFIF54CQQDUCTHJIMCORNM";
+    private static final String WEBRTC_CREDENTIAL = "SMBekljcZFw3Fu9NGPli6TwmvuXdYH3lCNvcnjVb2is0fDTHU1m7DPnmKYstlXeDgt3zMqaTe6The1pDuW6r38S5KCAxx2VgqhWvDtMa5C2j1EhJ2b8YIrGG0d7hEQread26epFHNb7JB4Mn3GurOvODexhTdcXx+fSKmGVHDORWTsXvsGKxidv/pp4InseyOzNOiU54x2wA5DrAve+49g==";
     private static final String WEBRTC_DMTOKEN = "Oz7WSSkb1fDcFcS9DcZuCvqrDdZZWUCULJEznVkm9xo=";
     private static final String WEBRTC_REALM = "56ai";
     private static final Integer WEBRTC_CHANNEL = null;
@@ -251,8 +251,8 @@ public class VideoActivity extends AppCompatActivity {
 //        }
         if (mDemoWebRTC) {
             playLiveStream();
-            nebConnect = new ConnectToNeb(this);
-            sendAnyCommand();
+//            nebConnect = new ConnectToNeb(this);
+//            sendAnyCommand();
             /*
             NebulaAPIs.Nebula_Initialize();
 
@@ -405,9 +405,15 @@ public class VideoActivity extends AppCompatActivity {
             @Override
             public void run() {
                 NebulaAPIs.Nebula_Initialize();
+                String tutkId;
+                if (WEBRTC_UDID.length() > 40) {
+                    tutkId = WEBRTC_UDID.substring(0, 40);
+                } else {
+                    tutkId = WEBRTC_UDID;
+                }
 
                 long[] ctx = new long[1];
-                NebulaAPIs.Nebula_Client_New_From_String(WEBRTC_UDID, WEBRTC_CREDENTIAL, ctx);
+                NebulaAPIs.Nebula_Client_New_From_String(tutkId, WEBRTC_CREDENTIAL, ctx);
                 NebulaAPIs.Nebula_Client_Connect(ctx[0], new NebulaAPIs.NebulaClientConnectStateFn() {
                     @Override
                     public void connect_state_handler(long client_ctx, int state) {
