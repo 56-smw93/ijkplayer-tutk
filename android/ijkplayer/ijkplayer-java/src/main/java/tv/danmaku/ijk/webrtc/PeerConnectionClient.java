@@ -992,8 +992,8 @@ public class PeerConnectionClient {
     surfaceTextureHelper =
         SurfaceTextureHelper.create("CaptureThread", rootEglBase.getEglBaseContext());
     videoSource = factory.createVideoSource(capturer.isScreencast());
-    capturer.initialize(surfaceTextureHelper, appContext, videoSource.getCapturerObserver());
-    capturer.startCapture(videoWidth, videoHeight, videoFps);
+//    capturer.initialize(surfaceTextureHelper, appContext, videoSource.getCapturerObserver());
+//    capturer.startCapture(videoWidth, videoHeight, videoFps);
 
     localVideoTrack = factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
     localVideoTrack.setEnabled(renderVideo);
